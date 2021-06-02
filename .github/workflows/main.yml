@@ -1,0 +1,48 @@
+name: PyGithub-examples
+
+on:
+  push:
+    branches:
+    - 'main'
+    - 'master'
+    - 'dev'
+    paths-ignore:
+      - '**/README.md'
+  pull_request:
+    branches:
+    - '*'
+  schedule:
+    - cron: '0 9 * * 2'  # every tuesday at 9:00 https://crontab.guru/#0_7_*_*_1
+  workflow_dispatch:
+
+jobs:
+  image:
+    name: PyGithub-examples
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@v2.2.0
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: "Build server"
+        run: ls
+  check-quality:
+    runs-on: ubuntu-latest
+    name: A job to check my code quality
+    steps:
+    - name: Check code meets quality standards
+      id: code-inspector
+      uses: codeinspectorio/github-action@master
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        code_inspector_access_key: ${{ secrets.CODE_INSPECTOR_ACCESS_KEY }}
+        code_inspector_secret_key: ${{ secrets.CODE_INSPECTOR_SECRET_KEY }}
+        min_quality_grade: 'WARNING'
+        min_quality_score: '50'
+        max_defects_rate: '0.0001'
+        max_complex_functions_rate: '0.0001'
+        max_long_functions_rate: '0.0001'
+        project_name: ''
+        max_timeout_sec: '600'
